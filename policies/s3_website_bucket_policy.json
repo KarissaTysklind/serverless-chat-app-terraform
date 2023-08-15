@@ -1,12 +1,11 @@
 {
     "Version": "2012-10-17",
+    "Id": "Policy1497053408897",
     "Statement": [
         {
-            "Sid": "OAIAccessOnly",
+            "Sid": "Stmt1497053406813",
             "Effect": "Allow",
-            "Principal": {
-                "AWS": "${cf_oai_arn}"
-            },
+            "Principal": "*",
             "Action": "s3:GetObject",
             "Resource": "arn:aws:s3:::${bucket_name}/*"
         }

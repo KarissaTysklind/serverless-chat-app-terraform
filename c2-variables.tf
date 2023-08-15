@@ -1,13 +1,10 @@
 variable "aws_region" {
-  type    = string
-  default = "us-east-1"
+  type = string
 }
 
 # Bucket variables
-
 variable "s3_bucket_name" {
-  type    = string
-  default = "kt-my-serverless-chat-app"
+  type = string
 }
 
 variable "website_bucket_force_destroy" {
@@ -17,10 +14,5 @@ variable "website_bucket_force_destroy" {
 
 variable "website_bucket_acl" {
   type    = string
-  default = "public-read"
-}
-
-variable "www_website_redirect_enabled" {
-  type    = bool
-  default = false
+  default = "private"
 }

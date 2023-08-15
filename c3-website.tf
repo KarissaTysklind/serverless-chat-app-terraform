@@ -1,12 +1,21 @@
-# CloudFront Origin Access Identity
-resource "aws_cloudfront_origin_access_identity" "cf_oai" {
-  comment = "OAI to restrict access to AWS S3 content"
-}
-
 # Website S3 Bucket
 resource "aws_s3_bucket" "website" {
   bucket        = var.s3_bucket_name
   force_destroy = var.website_bucket_force_destroy
+}
+
+resource "aws_s3_bucket" "test" {
+
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "website" {
+  bucket = aws_s3_bucket.website.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+    bucket_key_enabled = true
+  }
 }
 
 resource "aws_s3_bucket_website_configuration" "website" {
@@ -14,23 +23,12 @@ resource "aws_s3_bucket_website_configuration" "website" {
   index_document {
     suffix = "index.html"
   }
-
-  error_document {
-    key = "error.html"
-  }
-
-  routing_rule {
-    condition {
-      key_prefix_equals = "docs/"
-    }
-    redirect {
-      replace_key_prefix_with = "documents/"
-    }
-  }
 }
 
 resource "aws_s3_bucket_public_access_block" "s3_bucket_block" {
-  bucket = aws_s3_bucket.website.id
+  depends_on = [aws_s3_bucket_ownership_controls.website]
+  bucket     = aws_s3_bucket.website.id
+
 
   block_public_acls       = false
   block_public_policy     = false
@@ -41,21 +39,15 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_block" {
 resource "aws_s3_bucket_ownership_controls" "website" {
   bucket = aws_s3_bucket.website.id
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
 
-resource "aws_s3_bucket_acl" "s3_bucket_acl" {
+resource "aws_s3_bucket_policy" "website" {
   depends_on = [aws_s3_bucket_ownership_controls.website]
   bucket     = aws_s3_bucket.website.id
-  acl        = var.website_bucket_acl
-}
-
-resource "aws_s3_bucket_policy" "website" {
-  bucket = aws_s3_bucket.website.id
   policy = templatefile("/policies/s3_website_bucket_policy.json", {
     bucket_name = var.s3_bucket_name
-    cf_oai_arn  = aws_cloudfront_origin_access_identity.cf_oai.iam_arn
   })
 }
 
@@ -67,6 +59,11 @@ resource "aws_s3_object" "uploadfiles" {
 }
 
 # CloudFront Configuration
+/*
+data "aws_cloudfront_cache_policy" "cache_policy" {
+    name = "Managed-CachingOptimized"     
+}
+
 resource "aws_cloudfront_distribution" "website_distribution" {
   aliases = []
 
@@ -105,7 +102,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   default_cache_behavior {
     target_origin_id       = "${var.s3_bucket_name}.s3-website-${var.aws_region}.amazonaws.com"
     viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    cache_policy_id        = "${data.aws_cloudfront_cache_policy.cache_policy.id}" 
 
 
     allowed_methods = ["GET", "HEAD"]
@@ -115,10 +112,9 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
-    acm_certificate_arn            = ""
-    ssl_support_method             = "sni-only"
+    acm_certificate_arn            = "" 
   }
-}
+*/
 
 
 
