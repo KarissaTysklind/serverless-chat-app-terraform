@@ -47,7 +47,7 @@ resource "aws_s3_bucket_policy" "website" {
 }
 
 resource "aws_s3_object" "uploadfiles" {
-  depends_on = [ local_file.site_templates ]
+  depends_on = [local_file.site_templates]
 
   for_each = fileset("${path.module}/site/", "**")
   bucket   = aws_s3_bucket.website.id
@@ -60,12 +60,11 @@ resource "local_file" "site_templates" {
 
   content = templatefile("${path.module}/site/js/template_files/${each.value}", {
     user_pool_id = "${aws_cognito_user_pool.users.id}"
-    client_id     = "${aws_cognito_managed_user_pool_client.chat.id}"
+    client_id    = "${aws_cognito_user_pool_client.chat.id}"
   })
 
   filename = "${path.module}/site/js/${each.value}"
 }
-
 
 # CloudFront Configuration
 

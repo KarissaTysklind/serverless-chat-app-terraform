@@ -1,38 +1,38 @@
 locals {
   dynamo_db_tables = {
     Chat_Conversation = {
-        name = var.dynamodb_conversation_table_name
-        hash_key = "ConversationId"
-        range_key = "Username"
-        attributes = [{
-            name = "ConversationId"
-            type = "S"
-            },
-            {
-            name = "Username"
-            type = "S"
-            }
-        ]
+      name      = var.dynamodb_conversation_table_name
+      hash_key  = "ConversationId"
+      range_key = "Username"
+      attributes = [{
+        name = "ConversationId"
+        type = "S"
+        },
+        {
+          name = "Username"
+          type = "S"
+        }
+      ]
     }
-    
+
     Chat_Messages = {
-        name = var.dynamodb_messages_table_name
-        hash_key = "ConversationId"
-        range_key = "Timestamp"
-        attributes = [{
-            name = "ConversationId"
-            type = "S"
-            },
-            {
-            name = "Timestamp"
-            type = "N"
-            }
-        ]
-  }
+      name      = var.dynamodb_messages_table_name
+      hash_key  = "ConversationId"
+      range_key = "Timestamp"
+      attributes = [{
+        name = "ConversationId"
+        type = "S"
+        },
+        {
+          name = "Timestamp"
+          type = "N"
+        }
+      ]
+    }
   }
 }
 module "dynamo_db_tables" {
-  source = "terraform-aws-modules/dynamodb-table/aws"
+  source   = "terraform-aws-modules/dynamodb-table/aws"
   for_each = local.dynamo_db_tables
 
   name                        = local.dynamo_db_tables[each.key].name

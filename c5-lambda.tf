@@ -66,8 +66,8 @@ data "archive_file" "chat" {
 }
 
 resource "aws_s3_object" "lambda_functions" {
-  depends_on = [ data.archive_file.chat ]
-  for_each = local.lambda_functions
+  depends_on = [data.archive_file.chat]
+  for_each   = local.lambda_functions
 
   bucket = aws_s3_bucket.lambda_bucket.id
   key    = "${each.value.function_name}.zip"
@@ -92,12 +92,12 @@ resource "aws_lambda_function" "chat" {
 # Define lambda permissions for API Gateway
 
 resource "aws_lambda_permission" "aws_api_gateway_deployment" {
-  depends_on = [ local_file.lambda_functions ]
-  for_each = aws_lambda_function.chat
-  statement_id = "AllowAPIGatewayInvoke"
-  action = "lambda:InvokeFunction"
+  depends_on    = [local_file.lambda_functions]
+  for_each      = aws_lambda_function.chat
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.chat[each.key].function_name
-  principal = "apigateway.amazonaws.com"
+  principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_api_gateway_rest_api.chat.execution_arn}/*/*"
 }
