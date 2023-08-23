@@ -1,0 +1,10 @@
+#set($inputRoot = $input.path('$'))
+{
+    "cognitoUsername": "$context.authorizer.claims['cognito:username']",
+    "id": "$input.params('id')",
+    "message": "$inputRoot",
+    "tables": {
+        "conversations": "$stageVariables.ConversationTable",
+        "messages": "$stageVariables.MessageTable"
+        }
+}

@@ -1,0 +1,11 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Sid": "VisualEditor0",
+        "Effect": "Allow",
+        "Action": "cognito-idp:ListUsers",
+        "Resource": "arn:aws:cognito-idp:${region}:${account_id}:userpool/${region}_${pool_id}"
+      }
+    ]
+  }

@@ -4,10 +4,6 @@ resource "aws_s3_bucket" "website" {
   force_destroy = var.website_bucket_force_destroy
 }
 
-resource "aws_s3_bucket" "test" {
-
-}
-
 resource "aws_s3_bucket_server_side_encryption_configuration" "website" {
   bucket = aws_s3_bucket.website.id
   rule {
@@ -29,7 +25,6 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_block" {
   depends_on = [aws_s3_bucket_ownership_controls.website]
   bucket     = aws_s3_bucket.website.id
 
-
   block_public_acls       = false
   block_public_policy     = false
   ignore_public_acls      = false
@@ -46,22 +41,36 @@ resource "aws_s3_bucket_ownership_controls" "website" {
 resource "aws_s3_bucket_policy" "website" {
   depends_on = [aws_s3_bucket_ownership_controls.website]
   bucket     = aws_s3_bucket.website.id
-  policy = templatefile("/policies/s3_website_bucket_policy.json", {
+  policy = templatefile("${path.module}/policies/s3_website_bucket_policy.json", {
     bucket_name = var.s3_bucket_name
   })
 }
 
 resource "aws_s3_object" "uploadfiles" {
-  for_each = fileset("./website-files/Site/", "**")
+  depends_on = [ local_file.site_templates ]
+
+  for_each = fileset("${path.module}/site/", "**")
   bucket   = aws_s3_bucket.website.id
   key      = each.value
-  source   = "./website-files/Site/${each.value}"
+  source   = "./site/${each.value}"
 }
 
+resource "local_file" "site_templates" {
+  for_each = fileset("${path.module}/site/template_files/", "**")
+
+  content = templatefile("${path.module}/site/js/template_files/${each.value}", {
+    user_pool_id = "${aws_cognito_user_pool.users.id}"
+    client_id     = "${aws_cognito_managed_user_pool_client.chat.id}"
+  })
+
+  filename = "${path.module}/site/js/${each.value}"
+}
+
+
 # CloudFront Configuration
-/*
+
 data "aws_cloudfront_cache_policy" "cache_policy" {
-    name = "Managed-CachingOptimized"     
+  name = "Managed-CachingOptimized"
 }
 
 resource "aws_cloudfront_distribution" "website_distribution" {
@@ -70,7 +79,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   comment             = null
   enabled             = true
   is_ipv6_enabled     = true
-  price_class         = "PriceClass_100"
+  price_class         = var.price_class
   retain_on_delete    = false
   wait_for_deployment = true
 
@@ -102,8 +111,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   default_cache_behavior {
     target_origin_id       = "${var.s3_bucket_name}.s3-website-${var.aws_region}.amazonaws.com"
     viewer_protocol_policy = "redirect-to-https"
-    cache_policy_id        = "${data.aws_cloudfront_cache_policy.cache_policy.id}" 
-
+    cache_policy_id        = data.aws_cloudfront_cache_policy.cache_policy.id
 
     allowed_methods = ["GET", "HEAD"]
     cached_methods  = ["GET", "HEAD"]
@@ -112,10 +120,9 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 
   viewer_certificate {
     cloudfront_default_certificate = true
-    acm_certificate_arn            = "" 
   }
-*/
 
+}
 
 
         
