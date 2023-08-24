@@ -34,7 +34,7 @@ resource "aws_s3_bucket_public_access_block" "s3_bucket_block" {
 resource "aws_s3_bucket_ownership_controls" "website" {
   bucket = aws_s3_bucket.website.id
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = "BucketOwnerPreferred"
   }
 }
 
@@ -46,17 +46,29 @@ resource "aws_s3_bucket_policy" "website" {
   })
 }
 
-resource "aws_s3_object" "uploadfiles" {
-  depends_on = [local_file.site_templates]
+locals {
+  content_type_map = {
+   "js" = "application/json"
+   "html" = "text/html"
+   "css"  = "text/css"
+   "ini" = "binary/octet-stream"
+  }
+}
 
-  for_each = fileset("${path.module}/site/", "**")
+resource "aws_s3_object" "uploadfiles" {
+  depends_on = [local_file.site_templates, aws_s3_bucket_policy.website]
+
+  for_each = fileset("${path.module}/site/", "**/*")
   bucket   = aws_s3_bucket.website.id
   key      = each.value
   source   = "./site/${each.value}"
+  content_type = lookup(local.content_type_map, split(".", "${each.value}")[1], "text/html")
+  acl = "public-read"
+  
 }
 
 resource "local_file" "site_templates" {
-  for_each = fileset("${path.module}/site/template_files/", "**")
+  for_each = fileset("${path.module}/site/js/template_files/", "**")
 
   content = templatefile("${path.module}/site/js/template_files/${each.value}", {
     user_pool_id = "${aws_cognito_user_pool.users.id}"
