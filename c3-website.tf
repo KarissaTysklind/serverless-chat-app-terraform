@@ -65,12 +65,13 @@ resource "aws_s3_object" "uploadfiles" {
   content_type = lookup(local.content_type_map, split(".", "${each.value}")[1], "text/html")
   acl = "public-read"
   
+  
 }
 
 resource "local_file" "site_templates" {
-  for_each = fileset("${path.module}/site/js/template_files/", "**")
+  for_each = fileset("${path.module}/templates/site_js/", "**")
 
-  content = templatefile("${path.module}/site/js/template_files/${each.value}", {
+  content = templatefile("${path.module}/templates/site_js/${each.value}", {
     user_pool_id = "${aws_cognito_user_pool.users.id}"
     client_id    = "${aws_cognito_user_pool_client.chat.id}"
   })

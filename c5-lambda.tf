@@ -48,7 +48,7 @@ locals {
 resource "local_file" "lambda_functions" {
   for_each = local.lambda_functions
 
-  content = templatefile("${path.module}/lambda/template_files/${each.value.template_file}", {
+  content = templatefile("${path.module}/templates/lambda_js/${each.value.template_file}", {
     conversation_table_name = var.dynamodb_conversation_table_name
     messages_table_name     = var.dynamodb_messages_table_name
     users_pool_id           = aws_cognito_user_pool.users.id
