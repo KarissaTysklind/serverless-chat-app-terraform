@@ -48,24 +48,27 @@ resource "aws_s3_bucket_policy" "website" {
 
 locals {
   content_type_map = {
-   "js" = "application/json"
-   "html" = "text/html"
-   "css"  = "text/css"
-   "ini" = "binary/octet-stream"
+    "js"   = "application/javascript"
+    "html" = "text/html"
+    "css"  = "text/css"
+    "woff" = "application/font-woff"
+    "json" = "application/json"
+    "svg"  = "image/svg+xml"
   }
 }
 
 resource "aws_s3_object" "uploadfiles" {
   depends_on = [local_file.site_templates, aws_s3_bucket_policy.website]
 
-  for_each = fileset("${path.module}/site/", "**/*")
-  bucket   = aws_s3_bucket.website.id
-  key      = each.value
-  source   = "./site/${each.value}"
-  content_type = lookup(local.content_type_map, split(".", "${each.value}")[1], "text/html")
-  acl = "public-read"
-  
-  
+  for_each     = fileset("${path.module}/site/", "**/*")
+  bucket       = aws_s3_bucket.website.id
+  key          = each.value
+  source       = "./site/${each.value}"
+  content_type = lookup(local.content_type_map, split(".", "${each.value}")[length(split(".", "${each.value}")) - 1], "binary/octet-stream")
+  # lookup(local.content_type_map, split(".", "${each.value}")[length(split(".", "${each.value}")) - 1], "text/html")
+  # lookup(local.content_type_map, split(".", "${each.value}")[1], "text/html")
+  acl  = "public-read"
+  etag = filemd5("./site/${each.value}")
 }
 
 resource "local_file" "site_templates" {

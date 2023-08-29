@@ -7,39 +7,29 @@ resource "aws_s3_bucket" "lambda_bucket" {
 locals {
   lambda_functions = {
     conversation_POST = {
-      template_file   = "chat_conversation_POST.tpl"
-      js_file         = "chat_conversation_POST.js"
-      zip_output_path = "${path.module}/lambda/chat_conversation_POST.zip"
-      function_name   = "${var.function_name_prefix}-Chat-Conversation-POST"
+      name          = "chat_conversation_POST"
+      function_name = "${var.function_name_prefix}-Chat-Conversation-POST"
     }
 
     messages_POST = {
-      template_file   = "chat_messages_POST.tpl"
-      js_file         = "chat_messages_POST.js"
-      zip_output_path = "${path.module}/lambda/chat_messages_POST.zip"
-      function_name   = "${var.function_name_prefix}-Chat-Messages-POST"
+      name          = "chat_messages_POST"
+      function_name = "${var.function_name_prefix}-Chat-Messages-POST"
     }
 
     conversation_GET = {
-      template_file   = "chat_conversation_GET.tpl"
-      js_file         = "chat_conversation_GET.js"
-      zip_output_path = "${path.module}/lambda/chat_conversation_GET.zip"
-      function_name   = "${var.function_name_prefix}-Chat-Conversation-GET"
+      name          = "chat_conversation_GET"
+      function_name = "${var.function_name_prefix}-Chat-Conversation-GET"
 
     }
 
     messages_GET = {
-      template_file   = "chat_messages_GET.tpl"
-      js_file         = "chat_messages_GET.js"
-      zip_output_path = "${path.module}/lambda/chat_messages_GET.zip"
-      function_name   = "${var.function_name_prefix}-Chat-Messages-GET"
+      name          = "chat_messages_GET"
+      function_name = "${var.function_name_prefix}-Chat-Messages-GET"
     }
 
     users_GET = {
-      template_file   = "chat_users_GET.tpl"
-      js_file         = "chat_users_GET.js"
-      zip_output_path = "${path.module}/lambda/chat_users_GET.zip"
-      function_name   = "${var.function_name_prefix}-Chat-Users-GET"
+      name          = "chat_users_GET"
+      function_name = "${var.function_name_prefix}-Chat-Users-GET"
     }
   }
 }
@@ -48,13 +38,13 @@ locals {
 resource "local_file" "lambda_functions" {
   for_each = local.lambda_functions
 
-  content = templatefile("${path.module}/templates/lambda_js/${each.value.template_file}", {
+  content = templatefile("${path.module}/templates/lambda_js/${each.value.name}.tpl", {
     conversation_table_name = var.dynamodb_conversation_table_name
     messages_table_name     = var.dynamodb_messages_table_name
     users_pool_id           = aws_cognito_user_pool.users.id
   })
 
-  filename = "${path.module}/lambda/js_files/${each.value.js_file}"
+  filename = "${path.module}/lambda/js_files/${each.value.name}.js"
 }
 
 data "archive_file" "chat" {
@@ -62,7 +52,7 @@ data "archive_file" "chat" {
 
   type        = "zip"
   source_file = local_file.lambda_functions[each.key].filename
-  output_path = local.lambda_functions[each.key].zip_output_path
+  output_path = "${path.module}/lambda/${each.value.name}.zip"
 }
 
 resource "aws_s3_object" "lambda_functions" {
@@ -82,11 +72,11 @@ resource "aws_lambda_function" "chat" {
   s3_bucket     = aws_s3_bucket.lambda_bucket.id
   s3_key        = aws_s3_object.lambda_functions[each.key].key
   runtime       = "nodejs16.x"
-  handler       = "index.handler"
+  handler       = "${each.value.name}.handler"
 
   source_code_hash = data.archive_file.chat[each.key].output_base64sha256
 
-  role = each.key == "chat_users_GET" ? aws_iam_role.lambda_cognito.arn : aws_iam_role.lambda_dynamodb.arn
+  role = each.key == "users_GET" ? aws_iam_role.lambda_cognito.arn : aws_iam_role.lambda_dynamodb.arn
 }
 
 # Define lambda permissions for API Gateway
@@ -101,4 +91,5 @@ resource "aws_lambda_permission" "aws_api_gateway_deployment" {
 
   source_arn = "${aws_api_gateway_rest_api.chat.execution_arn}/*/*"
 }
+
 

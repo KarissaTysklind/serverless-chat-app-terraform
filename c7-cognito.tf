@@ -30,7 +30,7 @@ resource "aws_cognito_user_pool" "users" {
 }
 
 resource "aws_cognito_user_pool_client" "chat" {
-  name = "Website"
+  name         = "Website"
   user_pool_id = aws_cognito_user_pool.users.id
   explicit_auth_flows = [
     "ALLOW_REFRESH_TOKEN_AUTH",

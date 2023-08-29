@@ -54,13 +54,13 @@ resource "aws_api_gateway_integration" "conversations_GET" {
 }
 
 resource "aws_api_gateway_method_response" "conversations_GET" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_conversations.id
-  http_method     = aws_api_gateway_method.conversations_GET.http_method
-  status_code     = "200"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_conversations.id
+  http_method = aws_api_gateway_method.conversations_GET.http_method
+  status_code = "200"
   response_models = {
     "application/json" = aws_api_gateway_model.chat_models["conversation_list"].name
-    }
+  }
 }
 
 resource "aws_api_gateway_integration_response" "conversations_GET" {
@@ -73,9 +73,9 @@ resource "aws_api_gateway_integration_response" "conversations_GET" {
 
 # conversations_POST resources
 resource "aws_api_gateway_method" "conversations_POST" {
-  rest_api_id    = aws_api_gateway_rest_api.chat.id
-  resource_id    = aws_api_gateway_resource.chat_conversations.id
-  http_method    = "POST"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_conversations.id
+  http_method = "POST"
   request_models = {
     "application/json" = aws_api_gateway_model.chat_models["new_conversation"].name
   }
@@ -89,6 +89,7 @@ resource "aws_api_gateway_integration" "conversations_POST" {
   http_method = aws_api_gateway_method.conversations_POST.http_method
 
   integration_http_method = "POST"
+  content_handling        = "CONVERT_TO_TEXT"
   type                    = "AWS"
   uri                     = aws_lambda_function.chat["conversation_POST"].invoke_arn
   passthrough_behavior    = "WHEN_NO_TEMPLATES"
@@ -100,12 +101,12 @@ resource "aws_api_gateway_integration" "conversations_POST" {
 }
 
 resource "aws_api_gateway_method_response" "conversations_POST" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_conversations.id
-  http_method     = aws_api_gateway_method.conversations_POST.http_method
-  status_code     = "200"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_conversations.id
+  http_method = aws_api_gateway_method.conversations_POST.http_method
+  status_code = "200"
   response_models = {
-    "application/json" = aws_api_gateway_model.chat_models["conversation_id"].name}
+  "application/json" = aws_api_gateway_model.chat_models["conversation_id"].name }
 }
 
 resource "aws_api_gateway_integration_response" "conversations_POST" {
@@ -142,7 +143,8 @@ resource "aws_api_gateway_integration" "conversation_GET" {
   resource_id = aws_api_gateway_resource.chat_id.id
   http_method = aws_api_gateway_method.conversation_GET.http_method
 
-  integration_http_method = "GET"
+  integration_http_method = "POST"
+  content_handling        = "CONVERT_TO_TEXT"
   type                    = "AWS"
   uri                     = aws_lambda_function.chat["messages_GET"].invoke_arn
   passthrough_behavior    = "WHEN_NO_TEMPLATES"
@@ -154,12 +156,12 @@ resource "aws_api_gateway_integration" "conversation_GET" {
 }
 
 resource "aws_api_gateway_method_response" "conversation_GET" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_id.id
-  http_method     = aws_api_gateway_method.conversation_GET.http_method
-  status_code     = "200"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_id.id
+  http_method = aws_api_gateway_method.conversation_GET.http_method
+  status_code = "200"
   response_models = {
-    "application/json" = aws_api_gateway_model.chat_models["conversation"].name}
+  "application/json" = aws_api_gateway_model.chat_models["conversation"].name }
 }
 
 resource "aws_api_gateway_method_response" "conversation_GET_400" {
@@ -172,10 +174,10 @@ resource "aws_api_gateway_method_response" "conversation_GET_400" {
 }
 
 resource "aws_api_gateway_integration_response" "conversation_GET" {
-  rest_api_id       = aws_api_gateway_rest_api.chat.id
-  resource_id       = aws_api_gateway_resource.chat_id.id
-  http_method       = aws_api_gateway_method.conversation_GET.http_method
-  status_code       = aws_api_gateway_method_response.conversation_GET.status_code
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_id.id
+  http_method = aws_api_gateway_method.conversation_GET.http_method
+  status_code = aws_api_gateway_method_response.conversation_GET.status_code
 }
 
 resource "aws_api_gateway_integration_response" "conversation_GET_400" {
@@ -188,11 +190,11 @@ resource "aws_api_gateway_integration_response" "conversation_GET_400" {
 
 # conversation_POST resources
 resource "aws_api_gateway_method" "conversation_POST" {
-  rest_api_id    = aws_api_gateway_rest_api.chat.id
-  resource_id    = aws_api_gateway_resource.chat_id.id
-  http_method    = "POST"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_id.id
+  http_method = "POST"
   request_models = {
-    "application/json" = aws_api_gateway_model.chat_models["new_message"].name}
+  "application/json" = aws_api_gateway_model.chat_models["new_message"].name }
   authorizer_id = aws_api_gateway_authorizer.chat_cognito.id
   authorization = "COGNITO_USER_POOLS"
 }
@@ -203,6 +205,7 @@ resource "aws_api_gateway_integration" "conversation_POST" {
   http_method = aws_api_gateway_method.conversation_POST.http_method
 
   integration_http_method = "POST"
+  content_handling        = "CONVERT_TO_TEXT"
   type                    = "AWS"
   uri                     = aws_lambda_function.chat["messages_POST"].invoke_arn
   passthrough_behavior    = "WHEN_NO_TEMPLATES"
@@ -214,10 +217,10 @@ resource "aws_api_gateway_integration" "conversation_POST" {
 }
 
 resource "aws_api_gateway_method_response" "conversation_POST" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_id.id
-  http_method     = aws_api_gateway_method.conversation_POST.http_method
-  status_code     = "204"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_id.id
+  http_method = aws_api_gateway_method.conversation_POST.http_method
+  status_code = "204"
 }
 
 resource "aws_api_gateway_integration_response" "conversation_POST" {
@@ -227,7 +230,7 @@ resource "aws_api_gateway_integration_response" "conversation_POST" {
   status_code = "204"
 }
 
- # Define API Resources: /cusers
+# Define API Resources: /cusers
 resource "aws_api_gateway_resource" "chat_users" {
   rest_api_id = aws_api_gateway_rest_api.chat.id
   parent_id   = aws_api_gateway_rest_api.chat.root_resource_id
@@ -254,7 +257,8 @@ resource "aws_api_gateway_integration" "users_GET" {
   resource_id = aws_api_gateway_resource.chat_users.id
   http_method = aws_api_gateway_method.users_GET.http_method
 
-  integration_http_method = "GET"
+  integration_http_method = "POST"
+  content_handling        = "CONVERT_TO_TEXT"
   type                    = "AWS"
   uri                     = aws_lambda_function.chat["users_GET"].invoke_arn
   passthrough_behavior    = "WHEN_NO_TEMPLATES"
@@ -266,20 +270,20 @@ resource "aws_api_gateway_integration" "users_GET" {
 }
 
 resource "aws_api_gateway_method_response" "users_GET" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_users.id
-  http_method     = aws_api_gateway_method.users_GET.http_method
-  status_code     = "200"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_users.id
+  http_method = aws_api_gateway_method.users_GET.http_method
+  status_code = "200"
   response_models = {
     "application/json" = aws_api_gateway_model.chat_models["user_list"].name
-    }
+  }
 }
 
 resource "aws_api_gateway_integration_response" "users_GET" {
-  rest_api_id     = aws_api_gateway_rest_api.chat.id
-  resource_id     = aws_api_gateway_resource.chat_users.id
-  http_method     = aws_api_gateway_method.users_GET.http_method
-  status_code     = "200"
+  rest_api_id = aws_api_gateway_rest_api.chat.id
+  resource_id = aws_api_gateway_resource.chat_users.id
+  http_method = aws_api_gateway_method.users_GET.http_method
+  status_code = "200"
 }
 
 # API Gateway Deployment
@@ -290,6 +294,6 @@ resource "aws_api_gateway_stage" "chat" {
 }
 
 resource "aws_api_gateway_deployment" "chat" {
-  depends_on = [aws_api_gateway_integration.conversations_GET]
+  depends_on  = [aws_api_gateway_integration.conversations_GET]
   rest_api_id = aws_api_gateway_rest_api.chat.id
 }

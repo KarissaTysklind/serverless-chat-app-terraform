@@ -27,8 +27,8 @@ resource "aws_iam_policy" "lambda_cognito" {
 
 # IAM Roles
 resource "aws_iam_role" "lambda_dynamodb" {
-  name                = var.chat_dynamoDB_role_name
-  assume_role_policy  = jsonencode({
+  name = var.chat_dynamoDB_role_name
+  assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
@@ -44,8 +44,8 @@ resource "aws_iam_role" "lambda_dynamodb" {
 }
 
 resource "aws_iam_role" "lambda_cognito" {
-  name                = var.lambda_cognito_role_name
-  assume_role_policy  = jsonencode({
+  name = var.lambda_cognito_role_name
+  assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
