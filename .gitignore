@@ -2,8 +2,8 @@
 **/.terraform/*
 
 # Local files
-./lambda/*
-./site/js/config.js
+**/lambda/*
+**/site/js/config.js
 
 # .tfstate files
 *.tfstate
