@@ -51,7 +51,7 @@ data "archive_file" "chat" {
   for_each = local.lambda_functions
 
   type        = "zip"
-  source_file = local_file.lambda_functions[each.key].filename
+  source_file = "${path.module}/lambda/js_files/${each.value.name}.js"
   output_path = "${path.module}/lambda/${each.value.name}.zip"
 }
 
