@@ -9,27 +9,31 @@ locals {
     conversation_POST = {
       name          = "chat_conversation_POST"
       function_name = "${var.function_name_prefix}-Chat-Conversation-POST"
+      layers = [aws_lambda_layer_version.chat.arn]
     }
 
     messages_POST = {
       name          = "chat_messages_POST"
       function_name = "${var.function_name_prefix}-Chat-Messages-POST"
+      layers = []
     }
 
     conversation_GET = {
       name          = "chat_conversation_GET"
       function_name = "${var.function_name_prefix}-Chat-Conversation-GET"
-
+      layers = []
     }
 
     messages_GET = {
       name          = "chat_messages_GET"
       function_name = "${var.function_name_prefix}-Chat-Messages-GET"
+      layers = []
     }
 
     users_GET = {
       name          = "chat_users_GET"
       function_name = "${var.function_name_prefix}-Chat-Users-GET"
+      layers = []
     }
   }
 }
@@ -77,7 +81,15 @@ resource "aws_lambda_function" "chat" {
   source_code_hash = data.archive_file.chat[each.key].output_base64sha256
 
   role = each.key == "users_GET" ? aws_iam_role.lambda_cognito.arn : aws_iam_role.lambda_dynamodb.arn
+  layers = local.lambda_functions[each.key].layers
 }
+
+resource "aws_lambda_layer_version" "chat" {
+  layer_name = var.lambda_layer_name
+  compatible_runtimes = ["nodejs16.x"]
+}
+
+resource "aws_lambda_layer_version" "test"{}
 
 # Define lambda permissions for API Gateway
 

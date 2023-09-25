@@ -65,6 +65,10 @@ variable "function_name_prefix" {
   type = string
 }
 
+variable "lambda_layer_name" {
+  type = string
+}
+
 # API variables
 
 variable "api_chat_name" {

@@ -12,27 +12,72 @@ The back end is powered by AWS Lambda Functions, which are triggered by API Gate
 
 User management and authentication are handled by Amazon Cognito, providing secure user sign-up, sign-in, and access control for the application.
 
+# Requirements
+For this task you will need the following:
+    -   A Free Tier AWS Account
+    -   Terraform installed in your computer
+    -   AWS CLI installed in your computer
+    -   AWS Access Keys
+
+For details on how to set up an AWS account, how to set up Terraform and AWS CLI in your computer follow these links.
+
 # Getting Started
 To deploy and run the Serverless Instant Messaging Application, follow these steps:
 
-1. Front-end Deployment:
+1. Download Terraform Files:
 
-    -   Upload the contents of the frontend/ directory to an S3 bucket.
-    -   Create a CloudFront distribution for the S3 bucket to enhance content delivery.
+    -   Download the contents of this directory or create your own copy on a new directory on GitHub.
+    -   To work on your files, use your favourite text editor and open your folder/directory.
+    -   Using the Command Line, log into your AWS account using the <aws configure> command. 
+    -   Log in with your own AWS Access Key ID and AWS Secret Access Key. 
+    -   Specify the region where you would like to deploy your application. For example: <us-east-1>
+    -   Set default output format to <json>
 
-2. Back-end Deployment:
+2. Initialize Terraform:
 
-    -   Navigate to the backend/ directory.
-    -   Use the Serverless Framework and the serverless.yml configuration to deploy Lambda Functions and API Gateway resources.
-    -   Create the DynamoDB tables and configure Cognito according to the settings in the CloudFormation templates provided in the cloudformation/ directory.
+    -   Using the Command Line, initialize terraform with <terraform init>
+    -   Feel free to run <terraform validate> and <terraform fmt> to validate and reformat your files
+    -   If you want to automatically specify all the variables, create a <terraform.tfvars> file in the same directory
+    -   Include the following string variables as follows with your own values for each variable:
 
-3. Connecting Front-end and Back-end:
+                aws_region = ""
 
-    -   Update the necessary API endpoints and other configuration settings in the front-end code to interact with the deployed back-end services.
+                s3_bucket_name     = ""
+                lambda_bucket_name = ""
 
-4.  Testing:
+                dynamodb_conversation_table_name = ""
+                dynamodb_messages_table_name     = ""
 
-    -   Open the deployed S3 static website in a browser and start using the instant messaging application.
+                chat_dynamoDB_policy_name  = ""
+                lambda_cognito_policy_name = ""
+
+                chat_dynamoDB_role_name  = ""
+                lambda_cognito_role_name = ""
+                lambda_layer_name = ""
+
+                cognito_user_pool_name = ""
+
+                function_name_prefix = ""
+
+                api_chat_name          = ""
+                api_stage_name         = ""
+                endpoint_configuration = ""
+
+                sdk_file_name = ""
+
+3. Deploy terraform files:
+
+    -   Use <terraform plan> to run a preview of your deployment.
+    -   Use <terraform apply> to deploy the AWS resources defined on your terraform folder 
+
+4. Download API SDK files.
+    
+    -   Using the AWS Management Console, Navigate to the API Gateway and Select the API associated to this deployment.
+    -   Navigate to Stages, select the current stage, and select SDK Generation.
+    -   Under the <Platform*> dropdown menu select <JavaScript>
+    -   Proceed to <Generate SDK> to download your API files.
+    -   Extract the dowloaded zip file
+    -   Using the management console upload the <apiGateway-js-sdk> folder to <your_s3_folder_name/js>   
 
 # Contribution and Feedback
 Contributions, bug reports, and feedback are welcome! If you encounter issues or have suggestions for improvements, please create an issue in this repository.
